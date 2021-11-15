@@ -1,4 +1,4 @@
-module utility
+module github.com/writethesky/utility
 
 go 1.17
 
