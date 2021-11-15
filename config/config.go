@@ -20,7 +20,8 @@ const defaultConfigFileName = "config/config.yaml"
 // Parse a yaml file
 // default load <root path>/config/config.yaml and <exec path>/config/config.yaml
 // You can specify the location of the configuration file using the -config command parameter
-func Parse(configEntity interface{}) {
+// location: The location of the file calling the function relative to the code root. e.g. ../
+func Parse(configEntity interface{}, location string) {
 
 	flagSet := flag.NewFlagSet("server commend", flag.ContinueOnError)
 	bufferBytes := make([]byte, 0)
@@ -36,7 +37,7 @@ func Parse(configEntity interface{}) {
 		log.Printf("Use the user-defined configuration file %s", *configFileName)
 		configFileNames = append(configFileNames, *configFileName)
 	} else {
-		defaultFileNames := getDefaultFileNames()
+		defaultFileNames := getDefaultFileNames(location)
 		log.Printf("Use default configuration file %s", defaultFileNames)
 		configFileNames = append(configFileNames, defaultFileNames...)
 	}
@@ -75,14 +76,14 @@ func getConfigFile(configFileName string) (*os.File, error) {
 	return file, err
 }
 
-func getDefaultFileNames() (defaultFileNames []string) {
+func getDefaultFileNames(location string) (defaultFileNames []string) {
 	defaultFileNames = make([]string, 0)
 
 	ex, _ := os.Executable()
 	// Executable DIR
 	defaultFileNames = append(defaultFileNames, filepath.Join(filepath.Dir(ex), defaultConfigFileName))
 	// Relative
-	_, b, _, _ := runtime.Caller(0)
-	defaultFileNames = append(defaultFileNames, path.Join(path.Dir(b), "../", defaultConfigFileName))
+	_, b, _, _ := runtime.Caller(2)
+	defaultFileNames = append(defaultFileNames, path.Join(path.Dir(b), location, defaultConfigFileName))
 	return
 }
